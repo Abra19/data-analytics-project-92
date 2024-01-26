@@ -38,7 +38,7 @@ sales_avg AS (
 
 SELECT
 	  CONCAT(e.first_name, ' ', e.last_name) AS name,
-	  FLOOR(s.average_income) as average_income
+	  ROUND(s.average_income) as average_income
 FROM employees AS e
 INNER JOIN sales_avg AS s
   ON e.employee_id = s.sales_person_id
@@ -53,21 +53,20 @@ WITH weekday_sales AS (
 		    CONCAT(e.first_name, ' ', e.last_name) AS name,
 		    TO_CHAR(s.sale_date, 'day') AS weekday,
 		    EXTRACT(ISODOW FROM s.sale_date) AS day_number,
-		    FLOOR(SUM(p.price * s.quantity)) AS income
+		    ROUND(SUM(p.price * s.quantity)) AS income
 	  FROM sales AS s
 	  INNER JOIN employees AS e
 		    ON s.sales_person_id = e.employee_id
 	  INNER JOIN products AS p
 		    ON s.product_id = p.product_id
-	  GROUP BY e.first_name, e.last_name, s.sale_date
+	  GROUP BY e.first_name, e.last_name, weekday, day_number
 )
 
 SELECT
 	  name,
 	  weekday,
-	  SUM(income) AS income
+	  income
 FROM weekday_sales
-GROUP BY name, weekday, day_number
 ORDER BY name, day_number;
 
 -- customers categories
