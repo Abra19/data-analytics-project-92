@@ -67,7 +67,7 @@ SELECT
 	  weekday,
 	  income
 FROM weekday_sales
-ORDER BY name, day_number;
+ORDER BY day_number, name;
 
 -- customers categories
 
