@@ -102,13 +102,15 @@ WITH first_sale AS (
 		    c.customer_id AS customer_id,
 		    s.sales_person_id AS sales_person_id, 
 		    CONCAT(c.first_name, ' ', c.last_name) AS customer,
-		    FIRST_VALUE(s.sale_date) OVER (PARTITION BY s.customer_id) AS first_sale,
+		    MIN(s.sale_date) AS first_sale,
 		    p.price AS price
 	  FROM sales AS s
 	  INNER JOIN products AS p
 		    ON s.product_id = p.product_id 
 	  INNER JOIN customers AS c 
 		    ON s.customer_id  = c.customer_id
+		GROUP BY sales_person_id, c.customer_id, customer, p.price
+		HAVING(p.price = 0)
 )
 
 SELECT
@@ -118,5 +120,4 @@ SELECT
 FROM first_sale AS f
 INNER JOIN employees AS e
 	  ON f.sales_person_id = e.employee_id
-WHERE f.price = 0
 ORDER BY customer_id;
