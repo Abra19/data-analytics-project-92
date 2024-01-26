@@ -97,24 +97,27 @@ ORDER BY date;
 
 -- sales in special offers
 
-WITH first_sale_with_offer AS (
+WITH sale_with_offer AS (
 		SELECT
-				CONCAT(c.first_name, ' ', c.last_name) AS customer,
-				s.sale_date,
-				CONCAT(e.first_name, ' ', e.last_name) AS seller
-	FROM sales AS s
-	INNER JOIN products AS p
-			ON s.product_id = p.product_id 
-	INNER JOIN customers AS c 
-			ON s.customer_id  = c.customer_id
-	INNER JOIN employees AS e
-		  ON s.sales_person_id = e.employee_id
-	WHERE p.price = 0
-	ORDER BY customer, sale_date
+				s.customer_id AS customer_id,
+				CONCAT (c.first_name,' ',c.last_name) AS customer,
+				CONCAT (e.first_name,' ',e.last_name) AS seller,
+				p.price AS price,
+				s.sale_date AS sale_date,
+				ROW_NUMBER() OVER (PARTITION BY s.customer_id order by s.sale_date) AS rn
+		FROM sales AS s
+		INNER JOIN employees AS e  
+				ON s.sales_person_id = e.employee_id
+		INNER JOIN products AS p
+				ON s.product_id = p.product_id
+		INNER JOIN customers AS c
+				ON s.customer_id=c.customer_id
 )
 
-SELECT DISTINCT
+SELECT
 		customer,
-		FIRST_VALUE(sale_date) OVER (PARTITION BY customer) AS sale_date,
+		sale_date,
 		seller
-FROM first_sale_with_offer;
+FROM sale_with_offer
+WHERE rn = 1 AND price = 0
+ORDER BY customer_id;
