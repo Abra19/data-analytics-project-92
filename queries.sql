@@ -86,8 +86,8 @@ ORDER BY age_category;
 -- customers by months
 
 SELECT
-	  CONCAT(EXTRACT(YEAR FROM s.sale_date), '-', TO_CHAR(sale_date, 'MM')) AS date,
-	  COUNT(s.customer_id) AS total_customers,
+	  TO_CHAR(sale_date, 'YYYY-MM') AS date,
+	  COUNT(DISTINCT(s.customer_id)) AS total_customers,
 	  FLOOR(SUM(s.quantity * p.price)) AS income
 FROM sales s
 INNER JOIN products p
